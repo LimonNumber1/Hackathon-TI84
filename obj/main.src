@@ -1,0 +1,46 @@
+; Zilog eZ80 ANSI C Compiler Release 3.4
+; -optsize -noreduceopt -nomodsect -peephole -globalopt
+; -localcse -const=ROM 
+	FILE	"SRC\MAIN.C"
+	.assume ADL=1
+	SEGMENT CODE
+;    1	#include <stdio.h>
+;    2	#include <tice.h>
+;    3	
+;    4	
+;    5	int main()
+;    6	{
+_main:
+;    7	    vprintf("ae", "ae");
+	LD	BC,L__0
+	PUSH	BC
+	LD	BC,L__1
+	PUSH	BC
+	CALL	_vprintf
+	POP	BC
+	POP	BC
+	OR	A,A
+;    8	    return 0;
+	SBC	HL,HL
+	RET	
+
+
+;**************************** _main ***************************
+;Name                         Addr/Register   Size   Type
+;_vprintf                            IMPORT  -----   function
+
+
+; Stack Frame Size: 6 (bytes)
+;       Spill Code: 0 (instruction)
+
+
+	SEGMENT STRSECT
+L__0:
+	DB	"ae"
+	DB	0
+L__1:
+	DB	"ae"
+	DB	0
+	XREF _vprintf:ROM
+	XDEF _main
+	END

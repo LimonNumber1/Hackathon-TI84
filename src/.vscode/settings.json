@@ -1,0 +1,9 @@
+{
+    "C_Cpp.errorSquiggles": "Enabled",
+    "files.associations": {
+        "tice.h": "c",
+        "stdio.h": "c",
+        "fileioc.h": "c",
+        "graphx.h": "c"
+    }
+}
