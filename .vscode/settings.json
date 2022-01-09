@@ -1,0 +1,15 @@
+{
+    "files.associations": {
+        "fileioc.h": "c",
+        "stdint.h": "c",
+        "usb.h": "c",
+        "usbdrvce.h": "c",
+        "keypadc.h": "c",
+        "srldvce.h": "c",
+        "srldrvce.h": "c",
+        "tice.h": "c",
+        "stdio.h": "c",
+        "graphx.h": "c",
+        "stdbool.h": "c"
+    }
+}
