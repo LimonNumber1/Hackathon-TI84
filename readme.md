@@ -1,1 +1,1 @@
-TI 84 app made for a hackathon, to build, build the makefile, to run, copy the DEMO.x8p file into a ti 84 plus ce and run
+Battleship made for a TI-84, created for a hackathon. To run: build the makefile then copy "ship.8xp" to a TI-84 via TE Connect CE or other methods.
