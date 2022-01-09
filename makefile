@@ -1,7 +1,7 @@
 # Makefile Options
 # ----------------------------
 
-NAME = DEMO
+NAME = ship
 ICON = icon.png
 DESCRIPTION = "CE C Toolchain Demo"
 COMPRESSED = NO

@@ -2,12 +2,15 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <time.h>
-
 #include <keypadc.h>
-#include <usbdrvce.h>
-#include <graphx.h>
 #include <tice.h>
-#include "game.h"
+
+struct Cell 
+{
+    bool isShip;
+    bool isHit;
+    char symbol;
+};
 
 // generates grid with ships
 void generateGridGame(struct Cell map[10][9]) 
@@ -56,7 +59,7 @@ void generateGridGame(struct Cell map[10][9])
             for (int x = 0; x < size; ++x) 
             {
                 map[randRow + x][randCol].isShip = true;
-                map[randRow + x][randCol].symbol = 'O';
+                //map[randRow + x][randCol].symbol = 'O'; this line shows all the ships
             }
         }
         else
@@ -176,9 +179,8 @@ int main(void)
 {
 
     struct Cell gameMap[10][9];
-    struct Cell attackMap[10][9];
 
-    // clears stuff, idk
+    // clears screen
     os_ClrHome();
     os_ClrTxtShd();
 
@@ -205,9 +207,6 @@ int main(void)
         if (checkGameStatus(gameMap) == 0)
             break;
     }
-    
-
-
     
     os_ClrHome();
     os_ClrTxtShd();
