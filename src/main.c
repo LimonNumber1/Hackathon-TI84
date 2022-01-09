@@ -2,17 +2,14 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <time.h>
-#include <stdlib.h>
 
 #include <keypadc.h>
+#include <usbdrvce.h>
 #include <graphx.h>
 #include <tice.h>
-
 #include "game.h"
-#include "usb_handler.h"
-#include "helper.h"
 
-
+// generates grid with ships
 void generateGridGame(struct Cell map[10][9]) 
 {
     // make clear board
@@ -85,8 +82,8 @@ void generateGridGame(struct Cell map[10][9])
     }
 }
 
+// shows where ships are?
 void generateGridAttack(struct Cell map[10][9]) {
-        // make clear board
     for (int i = 0; i < 9; ++i) 
     {
         for (int j = 0; j < 10; ++j) 
@@ -98,7 +95,7 @@ void generateGridAttack(struct Cell map[10][9]) {
     }
 }
 
-
+// helps with printing board
 void put_char(const char c) {
     char buf[2];
     buf[0] = c;
@@ -107,8 +104,11 @@ void put_char(const char c) {
     os_PutStrFull(buf);
 }
 
+// actually prints board
 void printBoard(struct Cell map[10][9]) 
 {
+    os_ClrHome();
+    os_ClrTxtShd();
     for (int i = 0; i < 9; ++i) {
         os_NewLine();
         os_MoveDown();
@@ -124,6 +124,7 @@ void printBoard(struct Cell map[10][9])
     }
 }
 
+// input first column then row
 void read_nums(int* n1, int* n2, char* buf) {
     char num1[10];
     char num2[10];
@@ -147,12 +148,37 @@ void read_nums(int* n1, int* n2, char* buf) {
     *n2 = atoi(num2);
 }
 
+void attackGrid(int col, int row, struct Cell map[10][9]) {
+    map[row][col].isHit = true;
+    if (map[row][col].isShip) {
+        map[row][col].symbol = 'X';
+    }
+    else {
+        map[row][col].symbol = '/';
+    }
+}
+
+// very inneficient solution but we have 2 hours left before deadline
+int checkGameStatus(struct Cell map[10][9]) {
+    for (int i = 0; i < 9; ++i) 
+    {
+        for (int j = 0; j < 10; ++j) 
+        {
+            if (map[i][j].isShip && !map[i][j].isHit) {
+                return 1;
+            }
+        }
+    }
+    return 0;
+}
+
 int main(void)
 {
 
     struct Cell gameMap[10][9];
     struct Cell attackMap[10][9];
 
+    // clears stuff, idk
     os_ClrHome();
     os_ClrTxtShd();
 
@@ -160,26 +186,34 @@ int main(void)
     os_NewLine();
     
     generateGridGame(gameMap);
-    generateGridAttack(attackMap);
     os_PutStrLine("Boards generated!");
-    printBoard(gameMap);
+    while (true) {
+        printBoard(gameMap);
+        os_SetCursorPos(0, 5);
+        os_PutStrFull("Board View");
+        os_SetCursorPos(9, 20);
+        int x, y = 0;
+
+        char buf[15];
+
+        os_GetStringInput("     ", buf, 14);
+        read_nums(&x, &y, buf);
+        if (x == 15 && y == 15) {
+            return 0;
+        }
+        attackGrid(x, y, gameMap);
+        if (checkGameStatus(gameMap) == 0)
+            break;
+    }
+    
+
+
+    
+    os_ClrHome();
+    os_ClrTxtShd();
     os_SetCursorPos(0, 5);
-    os_PutStrFull("Board View");
-    os_SetCursorPos(9, 20);
-    int x, y = 0;
-
-    char buf[15];
-
-    os_GetStringInput("     ", buf, 14);
-    read_nums(&x, &y, buf);
-
-    struct packet_t packet;
-    packet.command = command_attack;
-    packet.pd.position[0] = (byte)x; 
-    packet.pd.position[1] = (byte)y; 
-    send_packet(&packet);
-
-    // switch to other view
+    os_PutStrFull("You win!");
     while (!os_GetCSC());
+    usb_Cleanup();
     return 0;
 }

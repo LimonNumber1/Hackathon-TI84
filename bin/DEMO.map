@@ -1,15 +1,15 @@
 Section          Base   Top    High   Length
 ---------------- ------ ------ ------ -------
 .icon            D1A882 D1A99D           11Bh
-.init.libs       D1A99D D1A99D             0h
-.libs            D1A99D D1A99D             0h
-.init.clock      D1A99D D1A99D             0h
-.init.reruncheck D1A99D D1A99D             0h
-.init            D1A99D D1A9BD            20h
-.fini            D1A9BD D1A9F1            34h
-.text            D1A9F1 D1B4B5           AC4h
-.data            D1B4B5 D1B4C5            10h
-.rodata          D1B4C5 D1B5A2            DDh
+.init.libs       D1A99D D1A9F5            58h
+.libs            D1A9F5 D1AA04             Fh
+.init.clock      D1AA04 D1AA04             0h
+.init.reruncheck D1AA04 D1AA04             0h
+.init            D1AA04 D1AA24            20h
+.fini            D1AA24 D1AA58            34h
+.text            D1AA58 D1B667           C0Fh
+.data            D1B667 D1B677            10h
+.rodata          D1B677 D1B77F           108h
 .init_array      000000 000000             0h
 .ctors           000000 000000             0h
 .dtors           000000 000000             0h
@@ -23,18 +23,18 @@ ___low_bss                = D052C6
 ___len_bss                = 000000
 ___heaptop                = D13FD8
 ___heapbot                = D052C6
-___libs                   = D1A99D
+___libs                   = D1A9F5
 ___init_array_count       = 000000
 ___ctors_count            = 000000
 ___dtors_count            = 000000
 ___fini_array_count       = 000000
 __stack                   = D1A87E
-_os_GetStringInput        = D1A9F1
-_os_DisableHomeTextBuffer = D1AADB
-_os_EnableHomeTextBuffer  = D1AAED
-_random                   = D1AAFF
-__setstate                = D1AB5D
-__state                   = D1B4B5
+_os_GetStringInput        = D1AA58
+_os_DisableHomeTextBuffer = D1AB42
+_os_EnableHomeTextBuffer  = D1AB54
+_random                   = D1AB66
+__setstate                = D1ABC4
+__state                   = D1B667
 _boot_GetDate             = 0005A8
 _boot_GetTime             = 0005B0
 _os_PutStrFull            = 021D2C
@@ -47,17 +47,17 @@ _os_ClrLCD                = 02080C
 _os_ClrTxtShd             = 020818
 _os_HomeUp                = 020828
 _os_DrawStatusBar         = 021A3C
-_atoi                     = D1AB6D
-___isleap                 = D1AB80
-___maptab                 = D1B4C5
-_mktime                   = D1ABBA
-_mktime.dpmt              = D1B545
-_strtol                   = D1AD24
-_time                     = D1AEFB
-__frameset                = D1AF78
-__frameset0               = D1AF86
-_isspace                  = D1AF91
-_rand                     = D1AFA8
+_atoi                     = D1ABD4
+___isleap                 = D1ABE7
+___maptab                 = D1B677
+_mktime                   = D1AC21
+_mktime.dpmt              = D1B6F7
+_strtol                   = D1AD8B
+_time                     = D1AF62
+__frameset                = D1AFDF
+__frameset0               = D1AFED
+_isspace                  = D1AFF8
+_rand                     = D1B00F
 __iand                    = 000134
 __imulu                   = 000158
 __irems                   = 00016C
@@ -69,21 +69,28 @@ __lmulu                   = 0001CC
 __lneg                    = 0001D0
 __setflag                 = 000218
 _toupper                  = 021E38
-_srand                    = D1AFB5
+_srand                    = D1B01C
 _errno                    = D008DC
-__start                   = D1A99D
-___exithl                 = D1A9BD
-skip._exit                = D1A9BD
-skip.__Exit               = D1A9BD
-skip._abort               = D1A9BD
-_exit.sp                  = D1A9BE
-_exit.flash_wait_states   = D1A9C8
-_generateGrid             = D1AFBD
-_put_char                 = D1B287
-_printBoard               = D1B2A5
-_read_nums                = D1B33E
-_main                     = D1B3A3
-L_.str                    = D1B569
-L_.str.1                  = D1B57F
-L_.str.2                  = D1B591
-L_.str.3                  = D1B59C
+.missingappvar            = D1B71B
+.libloadname              = D1B720
+.libloadnamelen           = 000007
+.webaddress               = D1B728
+__start                   = D1AA04
+___exithl                 = D1AA24
+skip._exit                = D1AA24
+skip.__Exit               = D1AA24
+skip._abort               = D1AA24
+_exit.sp                  = D1AA25
+_exit.flash_wait_states   = D1AA2F
+_generateGridGame         = D1B024
+_put_char                 = D1B2EE
+_printBoard               = D1B30C
+_read_nums                = D1B3B5
+_checkGameStatus          = D1B41A
+_main                     = D1B4A2
+L_.str                    = D1B73D
+L_.str.1                  = D1B753
+L_.str.2                  = D1B765
+L_.str.3                  = D1B770
+L_.str.4                  = D1B776
+_#usb_Cleanup             = D1AA00

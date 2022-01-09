@@ -35,12 +35,13 @@ static usb_error_t handle_usb_event(usb_event_t event, void *event_data,
     /* Enable newly connected devices */
     if(event == USB_DEVICE_CONNECTED_EVENT && !(usb_GetRole() & USB_ROLE_DEVICE)) {
         usb_device_t device = event_data;
+        os_PutStrFull("ln 38");
         usb_ResetDevice(device);
     }
     /* When a device is connected, or when connected to a computer */
     if((event == USB_DEVICE_ENABLED_EVENT && !(usb_GetRole() & USB_ROLE_DEVICE)) || event == USB_HOST_CONFIGURE_EVENT) {
         usb_device_t device;
-
+        os_PutStrFull("ln 43");
         if(event == USB_HOST_CONFIGURE_EVENT) {
             device = usb_FindDevice(NULL, NULL, USB_SKIP_HUBS);
         } else {
@@ -49,6 +50,7 @@ static usb_error_t handle_usb_event(usb_event_t event, void *event_data,
 
         if(device && !has_device) {
             /* Initialize the serial library with the newly attached device */
+            os_PutStrFull("ln 53");
             srl_error_t error = srl_Open(&srl, device, srl_buf, sizeof srl_buf, SRL_INTERFACE_ANY);
 
             if(error) {
@@ -59,11 +61,13 @@ static usb_error_t handle_usb_event(usb_event_t event, void *event_data,
                 os_ClrHome();
                 debug_log(buf);
             } else {
+                os_PutStrFull("ln 63");
                 has_device = true;
             }
         }
     }
     if(event == USB_DEVICE_DISCONNECTED_EVENT) {
+        os_PutStrFull("ln 70");
         has_device = false;
     }
 
@@ -76,35 +80,10 @@ int network_init() {
 
     usb_error_t usb_error = usb_Init(handle_usb_event, NULL, srl_GetCDCStandardDescriptors(), USB_DEFAULT_INIT_FLAGS);
     if(usb_error) {
-        os_PutStrFull("ERROR: could not initialize usb connection (usb_handler.c, 79)");
+        os_PutStrFull("ERROR: could not initialize usb connection (usb_handler.c, 80)");
         usb_Cleanup();
-        return 1;
+        exit(1);
     }
-
-   
-
-    do {
-        kb_Scan();
-        /* Call the USB event handler frequently to ensure that no data gets missed */
-        usb_HandleEvents();
-
-        /* initialize the init packet and send it over */
-        struct packet_t init_packet;
-        init_packet.command = command_init;
-        
-        send_packet(&init_packet);
-
-        if(has_device) {
-
-            read_packet(&init_packet);
-            if (init_packet.command == command_init)
-                break;
-        }
-
-    } while(!kb_IsDown(kb_KeyClear));
-    
-    os_PutStrLine("Finished connecting!\n");
-    return 0;
 }
 
 void put_char(const char c) {
@@ -115,15 +94,20 @@ void put_char(const char c) {
     os_PutStrFull(buf);
 }
 
+void aseae(void* data, int sz) {
+    srl_Read_Blocking(&srl, data, sz, 10000);
+}
+
 bool read_packet(struct packet_t* p) {
-    size_t sz = srl_Read_Blocking(&srl, p, sizeof(struct packet_t), 100);
+    size_t sz = srl_Read_Blocking(&srl, p, sizeof(struct packet_t), 1000);
     if (sz != sizeof(struct packet_t))
         return false;
     return true;
+    
 }
 
 bool send_packet(struct packet_t* p) {
-    size_t sz = srl_Write_Blocking(&srl, p, sizeof(struct packet_t), 100);
+    size_t sz = srl_Write_Blocking(&srl, p, sizeof(struct packet_t), 1000);
     if (sz != sizeof(struct packet_t))
         return false;
     return true;

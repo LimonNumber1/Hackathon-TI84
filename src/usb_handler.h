@@ -7,10 +7,8 @@ typedef unsigned char byte;
 #endif
 
 union packet_data {
-    bool ready;
-    byte  position[2];
-    bool isHit;
-    bool isSunk;
+    char msg[1000];
+    char name[10];
 };
 
 struct packet_t {
@@ -20,11 +18,11 @@ struct packet_t {
 
 
 enum commands {
-    command_init,
-    command_start,
-    command_stop,
-    command_attack,
-    command_respond
+    command_init = 1,
+    command_connect,
+    command_disconnect,
+    command_sendmsg,
+    command_name
 };
 
 bool read_packet(struct packet_t* p);
