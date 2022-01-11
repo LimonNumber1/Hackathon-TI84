@@ -2,8 +2,8 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <time.h>
-#include <keypadc.h>
-#include <tice.h>
+#include "keypadc.h"
+#include "tice.h"
 
 struct Cell 
 {
@@ -13,7 +13,7 @@ struct Cell
 };
 
 // generates grid with ships
-void generateGridGame(struct Cell map[10][9]) 
+void generateGridGame(struct Cell map[9][10]) 
 {
     // make clear board
     for (int i = 0; i < 9; ++i) 
@@ -26,9 +26,9 @@ void generateGridGame(struct Cell map[10][9])
         }
     }
 
-    // spawn ships | 0 = vertical, 1 = horizontal
-    for (int i = 5; i > 0; --i) 
-    {
+    // spawn ships rewrite
+    for (int i = 5; i > 0; --i) {
+        delay(1000); // we need the delay to ensure random spawning locations since the seed is time based
         int size = i;
         if (i == 2) {
             size = 3;
@@ -36,64 +36,59 @@ void generateGridGame(struct Cell map[10][9])
         if (i == 1) {
             size = 2;
         }
-        int distanceFromBoard = 10 - size;
         srand(time(NULL));
+
         int rotation = rand() % 2;
-        bool existingShip = true;
         int randCol = rand() % 10;
-        int randRow = rand() % distanceFromBoard;
-        if (rotation == 0) 
-        {
-            while (existingShip == true) {
-                int randCol = rand() % 10;
-                int randRow = rand() % distanceFromBoard;
-                for (int x = 0; x < size; ++x) {
-                    if (map[randRow + x][randCol].isShip == true) {
+        int randRow = rand() % 9;
+        bool existingShip = true;
+        // figure out how far away the front of the ship needs to spawn
+        int distanceFromSide;
+        if (rotation == 0) {
+            distanceFromSide = 8 - size;
+            while (existingShip) 
+            {
+                delay(1000);
+                srand(time(NULL));
+                randRow = rand() % distanceFromSide;
+                randCol = rand() % 10;
+                for (int x = 0; x < size; ++x) 
+                {
+                    if (map[randRow + x][randCol].isShip) {
                         existingShip = true;
-                        srand(time(NULL));
                         break;
                     }
                     existingShip = false;
-                }           
+                }
             }
             for (int x = 0; x < size; ++x) 
             {
                 map[randRow + x][randCol].isShip = true;
-                //map[randRow + x][randCol].symbol = 'O'; this line shows all the ships
+                //map[randRow + x][randCol].symbol = 'O'; // this line is just for visualization 
             }
         }
-        else
-        {
-            while (existingShip == true) {
-                int randCol = rand() % distanceFromBoard;
-                int randRow = rand() % 10;
-                for (int x = 0; x < size; ++x) {
-                    if (map[randRow + x][randCol].isShip == true) {
+        else {
+            distanceFromSide = 9 - size;
+            while (existingShip) 
+            {
+                delay(1000);
+                srand(time(NULL));
+                randRow = rand() % 9;
+                randCol = rand() % distanceFromSide;
+                for (int x = 0; x < size; ++x) 
+                {
+                    if (map[randRow][randCol + x].isShip) {
                         existingShip = true;
-                        srand(time(NULL));
                         break;
                     }
                     existingShip = false;
-                }           
+                }
             }
             for (int x = 0; x < size; ++x) 
             {
                 map[randRow][randCol + x].isShip = true;
-                map[randRow][randCol + x].symbol = 'O';
+                //map[randRow][randCol + x].symbol = 'O'; // this line is just for visualization 
             }
-        }
-    }
-}
-
-// shows where ships are?
-void generateGridAttack(struct Cell map[10][9]) {
-    for (int i = 0; i < 9; ++i) 
-    {
-        for (int j = 0; j < 10; ++j) 
-        {
-            map[i][j].isHit = false;
-            map[i][j].isShip = false;
-            map[i][j].symbol = '_';
         }
     }
 }
@@ -108,7 +103,7 @@ void put_char(const char c) {
 }
 
 // actually prints board
-void printBoard(struct Cell map[10][9]) 
+void printBoard(struct Cell gameMap[9][10]) 
 {
     os_ClrHome();
     os_ClrTxtShd();
@@ -120,7 +115,7 @@ void printBoard(struct Cell map[10][9])
     {
         for (int j = 0; j < 10; ++j) 
         {
-            put_char(map[i][j].symbol);
+            put_char(gameMap[i][j].symbol);
             put_char(' ');
         }
         os_NewLine();
@@ -151,7 +146,7 @@ void read_nums(int* n1, int* n2, char* buf) {
     *n2 = atoi(num2);
 }
 
-void attackGrid(int col, int row, struct Cell map[10][9]) {
+void attackGrid(int col, int row, struct Cell map[9][10]) {
     map[row][col].isHit = true;
     if (map[row][col].isShip) {
         map[row][col].symbol = 'X';
@@ -162,7 +157,7 @@ void attackGrid(int col, int row, struct Cell map[10][9]) {
 }
 
 // very inneficient solution but we have 2 hours left before deadline
-int checkGameStatus(struct Cell map[10][9]) {
+int checkGameStatus(struct Cell map[9][10]) {
     for (int i = 0; i < 9; ++i) 
     {
         for (int j = 0; j < 10; ++j) 
@@ -178,7 +173,7 @@ int checkGameStatus(struct Cell map[10][9]) {
 int main(void)
 {
 
-    struct Cell gameMap[10][9];
+    struct Cell gameMap[9][10];
 
     // clears screen
     os_ClrHome();
@@ -189,10 +184,15 @@ int main(void)
     
     generateGridGame(gameMap);
     os_PutStrLine("Boards generated!");
+    delay(1000);
     while (true) {
         printBoard(gameMap);
-        os_SetCursorPos(0, 5);
-        os_PutStrFull("Board View");
+        os_SetCursorPos(0, 20);
+        os_PutStrFull("Board");
+        os_SetCursorPos(1, 20);
+        os_PutStrFull("View");
+        os_SetCursorPos(8, 20);
+        os_PutStrFull("ColRow");
         os_SetCursorPos(9, 20);
         int x, y = 0;
 
@@ -200,9 +200,28 @@ int main(void)
 
         os_GetStringInput("     ", buf, 14);
         read_nums(&x, &y, buf);
+
+
+        // special codes
+        
+        // exit code
         if (x == 15 && y == 15) {
             return 0;
         }
+
+        // show all ships code
+        if (x == 15 && y == 14) {
+            for (int i = 0; i < 9; ++i) 
+            {
+                for (int j = 0; j < 10; ++j) 
+                {
+                    if (gameMap[i][j].isShip && !gameMap[i][j].isHit) {
+                        gameMap[i][j].symbol = 'O';
+                    }
+                }
+            }
+        }
+
         attackGrid(x, y, gameMap);
         if (checkGameStatus(gameMap) == 0)
             break;
@@ -213,6 +232,5 @@ int main(void)
     os_SetCursorPos(0, 5);
     os_PutStrFull("You win!");
     while (!os_GetCSC());
-    usb_Cleanup();
     return 0;
 }
