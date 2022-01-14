@@ -13,7 +13,7 @@ struct Cell
 };
 
 // generates grid with ships
-void generateGridGame(struct Cell map[9][10]) 
+void populateGrid(struct Cell map[9][10]) 
 {
     // make clear board
     for (int i = 0; i < 9; ++i) 
@@ -28,7 +28,7 @@ void generateGridGame(struct Cell map[9][10])
 
     // spawn ships rewrite
     for (int i = 5; i > 0; --i) {
-        delay(1000); // we need the delay to ensure random spawning locations since the seed is time based
+        //delay(1000); // we need the delay to ensure random spawning locations but im pretty sure i did it wrong
         int size = i;
         if (i == 2) {
             size = 3;
@@ -36,7 +36,7 @@ void generateGridGame(struct Cell map[9][10])
         if (i == 1) {
             size = 2;
         }
-        srand(time(NULL));
+        srand(rtc_Time());
 
         int rotation = rand() % 2;
         int randCol = rand() % 10;
@@ -48,8 +48,8 @@ void generateGridGame(struct Cell map[9][10])
             distanceFromSide = 8 - size;
             while (existingShip) 
             {
-                delay(1000);
-                srand(time(NULL));
+                //delay(1000);
+                srand(rtc_Time());
                 randRow = rand() % distanceFromSide;
                 randCol = rand() % 10;
                 for (int x = 0; x < size; ++x) 
@@ -71,8 +71,8 @@ void generateGridGame(struct Cell map[9][10])
             distanceFromSide = 9 - size;
             while (existingShip) 
             {
-                delay(1000);
-                srand(time(NULL));
+                //delay(1000);
+                srand(rtc_Time());
                 randRow = rand() % 9;
                 randCol = rand() % distanceFromSide;
                 for (int x = 0; x < size; ++x) 
@@ -170,27 +170,16 @@ int checkGameStatus(struct Cell map[9][10]) {
     return 0;
 }
 
-int main(void)
-{
-
-    struct Cell gameMap[9][10];
-
-    // clears screen
-    os_ClrHome();
-    os_ClrTxtShd();
-
-    os_PutStrFull("Generating boards....");
-    os_NewLine();
-    
-    generateGridGame(gameMap);
-    os_PutStrLine("Boards generated!");
-    delay(1000);
+// this function will be in charge of the turn management and will be called from main, no setup will be done here
+int playGame(struct Cell map1[9][10], struct Cell map2[9][10]) {
+    //int rounds = 0;
     while (true) {
-        printBoard(gameMap);
+        // player 1 turn, player 1 attacks map2 (opposite board)
+        printBoard(map2);
         os_SetCursorPos(0, 20);
-        os_PutStrFull("Board");
+        os_PutStrFull("User 1");
         os_SetCursorPos(1, 20);
-        os_PutStrFull("View");
+        os_PutStrFull("Turn");
         os_SetCursorPos(8, 20);
         os_PutStrFull("ColRow");
         os_SetCursorPos(9, 20);
@@ -206,7 +195,7 @@ int main(void)
         
         // exit code
         if (x == 15 && y == 15) {
-            return 0;
+            return 1;
         }
 
         // show all ships code
@@ -215,22 +204,117 @@ int main(void)
             {
                 for (int j = 0; j < 10; ++j) 
                 {
-                    if (gameMap[i][j].isShip && !gameMap[i][j].isHit) {
-                        gameMap[i][j].symbol = 'O';
+                    if (map2[i][j].isShip && !map2[i][j].isHit) {
+                        map2[i][j].symbol = 'O';
                     }
                 }
             }
         }
 
-        attackGrid(x, y, gameMap);
-        if (checkGameStatus(gameMap) == 0)
-            break;
+        // autowin code
+        if (x == 16 && y == 16) {
+            for (int i = 0; i < 9; ++i) 
+            {
+                for (int j = 0; j < 10; ++j) 
+                {
+                    if (map2[i][j].isShip && !map2[i][j].isHit) {
+                        map2[i][j].isHit = true;
+                    }
+                }
+            }
+        }   
+
+        attackGrid(x, y, map2);
+        if (checkGameStatus(map2) == 0)
+            return 0;
+        printBoard(map2);
+        delay(3000);
+
+        // player 2 turn. probably a better way to do this but if it works i dont care
+        printBoard(map1);
+        os_SetCursorPos(0, 20);
+        os_PutStrFull("User 2");
+        os_SetCursorPos(1, 20);
+        os_PutStrFull("Turn");
+        os_SetCursorPos(8, 20);
+        os_PutStrFull("ColRow");
+        os_SetCursorPos(9, 20);
+        x, y = 0;
+
+        buf[15];
+
+        os_GetStringInput("     ", buf, 14);
+        read_nums(&x, &y, buf);
+
+
+        // special codes
+        
+        // exit code
+        if (x == 15 && y == 15) {
+            return 1;
+        }
+
+        // show all ships code
+        if (x == 15 && y == 14) {
+            for (int i = 0; i < 9; ++i) 
+            {
+                for (int j = 0; j < 10; ++j) 
+                {
+                    if (map1[i][j].isShip && !map1[i][j].isHit) {
+                        map1[i][j].symbol = 'O';
+                    }
+                }
+            }
+        }
+
+        // autowin code
+        if (x == 16 && y == 16) {
+            for (int i = 0; i < 9; ++i) 
+            {
+                for (int j = 0; j < 10; ++j) 
+                {
+                    if (map1[i][j].isShip && !map1[i][j].isHit) {
+                        map1[i][j].isHit = true;
+                    }
+                }
+            }
+        } 
+
+        attackGrid(x, y, map1);
+        if (checkGameStatus(map1) == 0)
+            return 2;
+        printBoard(map1);
+        delay(3000);
     }
-    
+}
+
+int main(void)
+{
+    struct Cell playerMap1[9][10];
+    struct Cell playerMap2[9][10];
+
+    // clears screen
     os_ClrHome();
     os_ClrTxtShd();
-    os_SetCursorPos(0, 5);
-    os_PutStrFull("You win!");
+
+    os_PutStrFull("Generating boards....");
+    os_NewLine();
+    
+    populateGrid(playerMap1);
+    populateGrid(playerMap2);
+    os_PutStrLine("Boards generated!");
+    delay(1000);
+    
+    int exitPath = playGame(playerMap1, playerMap2);
+    if (exitPath == 1)
+        return 0;
+    os_ClrHome();
+    os_ClrTxtShd();
+    os_SetCursorPos(4, 6);
+    if (exitPath == 0) 
+        os_PutStrFull("Player 1 wins!");               // there is a more efficient way to print victory messages rather than 2 conditionals but the ti84 library is not the best
+    if (exitPath == 2) 
+        os_PutStrFull("Player 2 wins!");
     while (!os_GetCSC());
     return 0;
 }
