@@ -46,7 +46,7 @@ void populateGrid(struct Cell map[9][10])
         int distanceFromSide;
         if (rotation == 0) {
             distanceFromSide = 8 - size;
-            while (existingShip) 
+            while (existingShip) // this can probably end in an infinite loop but it's unlikely. what is a reset button for if you dont use it?
             {
                 //delay(1000);
                 srand(rtc_Time());
@@ -54,7 +54,8 @@ void populateGrid(struct Cell map[9][10])
                 randCol = rand() % 10;
                 for (int x = 0; x < size; ++x) 
                 {
-                    if (map[randRow + x][randCol].isShip) {
+                    // check in a 3x3 grid around point
+                    if (map[randRow + x][randCol].isShip || map[randRow + x + 1][randCol].isShip || map[randRow + x - 1][randCol].isShip || map[randRow + x][randCol + 1].isShip || map[randRow + x][randCol - 1].isShip || map[randRow + x + 1][randCol + 1].isShip || map[randRow + x - 1][randCol + 1].isShip || map[randRow + x + 1][randCol - 1].isShip || map[randRow + x - 1][randCol - 1].isShip) {
                         existingShip = true;
                         break;
                     }
@@ -77,7 +78,7 @@ void populateGrid(struct Cell map[9][10])
                 randCol = rand() % distanceFromSide;
                 for (int x = 0; x < size; ++x) 
                 {
-                    if (map[randRow][randCol + x].isShip) {
+                    if (map[randRow][randCol + x].isShip || map[randRow][randCol + x + 1].isShip || map[randRow][randCol + x - 1].isShip || map[randRow + 1][randCol + x].isShip || map[randRow - 1][randCol + x].isShip || map[randRow + 1][randCol + x + 1].isShip || map[randRow + 1][randCol + x - 1].isShip || map[randRow - 1][randCol + x + 1].isShip  || map[randRow - 1][randCol + x - 1].isShip) {
                         existingShip = true;
                         break;
                     }
@@ -312,7 +313,7 @@ int main(void)
     os_ClrTxtShd();
     os_SetCursorPos(4, 6);
     if (exitPath == 0) 
-        os_PutStrFull("Player 1 wins!");               // there is a more efficient way to print victory messages rather than 2 conditionals but the ti84 library is not the best
+        os_PutStrFull("Player 1 wins!");               // there is obviously a more efficient way to print victory messages rather than 2 conditionals but the ti84 library is not the best
     if (exitPath == 2) 
         os_PutStrFull("Player 2 wins!");
     while (!os_GetCSC());
