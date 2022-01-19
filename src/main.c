@@ -157,16 +157,18 @@ void read_nums(int *n1, int *n2, char *buf)
     *n2 = atoi(num2);
 }
 
-void attackGrid(int col, int row, struct Cell map[9][10])
+void attackGrid(int col, int row, struct Cell map[9][10], bool *continueTurn)
 {
     map[row][col].isHit = true;
     if (map[row][col].isShip)
     {
         map[row][col].symbol = 'X';
+        *continueTurn = true;
     }
     else
     {
         map[row][col].symbol = '/';
+        *continueTurn = false;
     }
 }
 
@@ -192,124 +194,128 @@ int playGame(struct Cell map1[9][10], struct Cell map2[9][10])
     //int rounds = 0;
     while (true)
     {
-        // player 1 turn, player 1 attacks map2 (opposite board)
-        printBoard(map2);
-        os_SetCursorPos(0, 20);
-        os_PutStrFull("User 1");
-        os_SetCursorPos(1, 20);
-        os_PutStrFull("Turn");
-        os_SetCursorPos(8, 20);
-        os_PutStrFull("ColRow");
-        os_SetCursorPos(9, 20);
-        int x, y = 0;
+        bool continueTurn = true;
+        while (continueTurn) {
+            // player 1 turn, player 1 attacks map2 (opposite board)
+            printBoard(map2);
+            os_SetCursorPos(0, 20);
+            os_PutStrFull("User 1");
+            os_SetCursorPos(1, 20);
+            os_PutStrFull("Turn");
+            os_SetCursorPos(8, 20);
+            os_PutStrFull("ColRow");
+            os_SetCursorPos(9, 20);
+            int x, y = 0;
 
-        char buf[15];
+            char buf[15];
 
-        os_GetStringInput("     ", buf, 14);
-        read_nums(&x, &y, buf);
+            os_GetStringInput("     ", buf, 14);
+            read_nums(&x, &y, buf);
 
-        // special codes
+            // special codes
 
-        // exit code
-        if (x == 15 && y == 15)
-        {
-            return 1;
-        }
-
-        // show all ships code
-        if (x == 15 && y == 14)
-        {
-            for (int i = 0; i < 9; ++i)
+            // exit code
+            if (x == 15 && y == 15)
             {
-                for (int j = 0; j < 10; ++j)
+                return 1;
+            }
+
+            // show all ships code
+            if (x == 15 && y == 14)
+            {
+                for (int i = 0; i < 9; ++i)
                 {
-                    if (map2[i][j].isShip && !map2[i][j].isHit)
+                    for (int j = 0; j < 10; ++j)
                     {
-                        map2[i][j].symbol = 'O';
+                        if (map2[i][j].isShip && !map2[i][j].isHit)
+                        {
+                            map2[i][j].symbol = 'O';
+                        }
                     }
                 }
             }
-        }
 
-        // autowin code
-        if (x == 16 && y == 16)
-        {
-            for (int i = 0; i < 9; ++i)
+            // autowin code
+            if (x == 16 && y == 16)
             {
-                for (int j = 0; j < 10; ++j)
+                for (int i = 0; i < 9; ++i)
                 {
-                    if (map2[i][j].isShip && !map2[i][j].isHit)
+                    for (int j = 0; j < 10; ++j)
                     {
-                        map2[i][j].isHit = true;
+                        if (map2[i][j].isShip && !map2[i][j].isHit)
+                        {
+                            map2[i][j].isHit = true;
+                        }
                     }
                 }
             }
-        }
 
-        attackGrid(x, y, map2);
-        if (checkGameStatus(map2) == 0)
-            return 0;
-        printBoard(map2);
+            attackGrid(x, y, map2, &continueTurn);
+            if (checkGameStatus(map2) == 0)
+                return 0;
+            printBoard(map2);
+        }
+        continueTurn = true;
         delay(3000);
+        while (continueTurn) {
+            // player 2 turn. probably a better way to do this but if it works i dont care
+            printBoard(map1);
+            os_SetCursorPos(0, 20);
+            os_PutStrFull("User 2");
+            os_SetCursorPos(1, 20);
+            os_PutStrFull("Turn");
+            os_SetCursorPos(8, 20);
+            os_PutStrFull("ColRow");
+            os_SetCursorPos(9, 20);
+            int x, y = 0;
 
-        // player 2 turn. probably a better way to do this but if it works i dont care
-        printBoard(map1);
-        os_SetCursorPos(0, 20);
-        os_PutStrFull("User 2");
-        os_SetCursorPos(1, 20);
-        os_PutStrFull("Turn");
-        os_SetCursorPos(8, 20);
-        os_PutStrFull("ColRow");
-        os_SetCursorPos(9, 20);
-        x, y = 0;
+            char buf[15];
 
-        buf[15];
+            os_GetStringInput("     ", buf, 14);
+            read_nums(&x, &y, buf);
 
-        os_GetStringInput("     ", buf, 14);
-        read_nums(&x, &y, buf);
+            // special codes
 
-        // special codes
-
-        // exit code
-        if (x == 15 && y == 15)
-        {
-            return 1;
-        }
-
-        // show all ships code
-        if (x == 15 && y == 14)
-        {
-            for (int i = 0; i < 9; ++i)
+            // exit code
+            if (x == 15 && y == 15)
             {
-                for (int j = 0; j < 10; ++j)
+                return 1;
+            }
+
+            // show all ships code
+            if (x == 15 && y == 14)
+            {
+                for (int i = 0; i < 9; ++i)
                 {
-                    if (map1[i][j].isShip && !map1[i][j].isHit)
+                    for (int j = 0; j < 10; ++j)
                     {
-                        map1[i][j].symbol = 'O';
+                        if (map1[i][j].isShip && !map1[i][j].isHit)
+                        {
+                            map1[i][j].symbol = 'O';
+                        }
                     }
                 }
             }
-        }
 
-        // autowin code
-        if (x == 16 && y == 16)
-        {
-            for (int i = 0; i < 9; ++i)
+            // autowin code
+            if (x == 16 && y == 16)
             {
-                for (int j = 0; j < 10; ++j)
+                for (int i = 0; i < 9; ++i)
                 {
-                    if (map1[i][j].isShip && !map1[i][j].isHit)
+                    for (int j = 0; j < 10; ++j)
                     {
-                        map1[i][j].isHit = true;
+                        if (map1[i][j].isShip && !map1[i][j].isHit)
+                        {
+                            map1[i][j].isHit = true;
+                        }
                     }
                 }
             }
+            attackGrid(x, y, map1, &continueTurn);
+            if (checkGameStatus(map1) == 0)
+                return 2;
+            printBoard(map1);
         }
-
-        attackGrid(x, y, map1);
-        if (checkGameStatus(map1) == 0)
-            return 2;
-        printBoard(map1);
         delay(3000);
     }
 }
